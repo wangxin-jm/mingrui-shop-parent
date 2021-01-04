@@ -2,6 +2,7 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
@@ -11,12 +12,14 @@
         <module name="mingrui-shopcommon-core" />
         <module name="mingrui-shop-basiczuul-server" />
         <module name="mingrui-shop-service-xxx" />
+        <module name="mingrui-shop-basic-uploadserver" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="mingrui-shop-basic-eureka-server" options="-parameters" />
+      <module name="mingrui-shop-basic-uploadserver" options="-parameters" />
       <module name="mingrui-shop-basics" options="-parameters" />
       <module name="mingrui-shop-basiczuul-server" options="-parameters" />
       <module name="mingrui-shop-commoms" options="-parameters" />
