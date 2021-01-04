@@ -41,6 +41,7 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
     private CategoryBrandMapper categoryBrandMapper;
 
 
+
     @Override
     @Transactional
     public Result<JSONObject> delete(Integer id) {

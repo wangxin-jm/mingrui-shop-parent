@@ -4,11 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.SpecGroupDTO;
+import com.baidu.shop.entity.SpecParamEntity;
 import com.baidu.shop.entity.SpecificationEntity;
 import com.baidu.shop.mapper.SpecGroupMapper;
+import com.baidu.shop.mapper.SpenParamMapper;
 import com.baidu.shop.service.SpecificationService;
 import com.baidu.shop.utils.BaiduBeanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
@@ -28,7 +31,8 @@ public class SpecificationServiceImpl extends BaseApiService implements Specific
     @Autowired
     private SpecGroupMapper specGroupMapper;
 
-
+    @Autowired
+    private SpenParamMapper spenParamMapper;
 
 
     @Override
@@ -43,6 +47,7 @@ public class SpecificationServiceImpl extends BaseApiService implements Specific
     }
 
     @Override
+    @Transactional
     public Result<JSONObject> save(SpecGroupDTO specGroupDTO) {
         specGroupMapper.insertSelective(BaiduBeanUtil.beanUtil(specGroupDTO,SpecificationEntity.class));
 
@@ -50,6 +55,7 @@ public class SpecificationServiceImpl extends BaseApiService implements Specific
     }
 
     @Override
+    @Transactional
     public Result<JSONObject> update(SpecGroupDTO specGroupDTO) {
         specGroupMapper.updateByPrimaryKeySelective(BaiduBeanUtil.beanUtil(specGroupDTO,SpecificationEntity.class));
 
@@ -57,9 +63,17 @@ public class SpecificationServiceImpl extends BaseApiService implements Specific
     }
 
     @Override
+    @Transactional
     public Result<JSONObject> deletes(Integer id) {
+
+        Example example = new Example(SpecParamEntity.class);
+        example.createCriteria().andEqualTo("groupId",id);
+        List<SpecParamEntity> specParamEntities = spenParamMapper.selectByExample(example);
+        if(specParamEntities.size() >= 1) return this.setResultError("当前规格有规格参数不能被删除");
+
+
         specGroupMapper.deleteByPrimaryKey(id);
-        return this.setResultSuccess("新增成功");
+        return this.setResultSuccess();
     }
 
 }

@@ -104,7 +104,7 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
         Example example1 = new Example(CategoryBrandEntity.class);
         example1.createCriteria().andEqualTo("categoryId",id);
         List<CategoryBrandEntity> categoryBrandEntities = categoryBrandMapper.selectByExample(example1);
-        if(categoryBrandEntities.size() <= 1) return this.setResultError("当前分类已被品牌绑定");
+        if(categoryBrandEntities.size() >= 1) return this.setResultError("当前分类已被品牌绑定");
 
 
         //如果不是父节点在查询parentId有几条数据
