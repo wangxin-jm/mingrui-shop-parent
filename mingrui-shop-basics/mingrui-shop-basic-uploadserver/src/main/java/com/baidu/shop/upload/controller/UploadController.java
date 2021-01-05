@@ -3,9 +3,9 @@ package com.baidu.shop.upload.controller;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.status.HTTPStatus;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
@@ -18,19 +18,19 @@ import java.util.UUID;
  * 6 * @Version V1.0
  * 7
  **/
-@RestController
-@RequestMapping(value = "upload")
+//@RestController
+//@RequestMapping(value = "upload")
 public class UploadController extends BaseApiService {
     //linux系统的上传目录
-    @Value(value = "${mingrui.upload.path.windows}")
+//    @Value(value = "${mingrui.upload.path.windows}")
     private String windowsPath;
     //window系统的上传目录
-    @Value(value = "${mingrui.upload.path.linux}")
+//    @Value(value = "${mingrui.upload.path.linux}")
     private String linuxPath;
     //图片服务器的地址
-    @Value(value = "${mingrui.upload.img.host}")
+//    @Value(value = "${mingrui.upload.img.host}")
     private String imgHost;
-    @PostMapping
+    // @PostMapping
     public Result<String> uploadImg(@RequestParam MultipartFile file) {
         if(file.isEmpty()) return this.setResultError("上传的文件为空");//判断上传的文件是否为空
         String filename = file.getOriginalFilename();//获取文件名
