@@ -4,10 +4,13 @@ import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.SpuDTO;
 import com.baidu.shop.entity.BrandEntity;
+import com.baidu.shop.entity.CategoryEntity;
 import com.baidu.shop.entity.SpuEntity;
 import com.baidu.shop.mapper.BrandMapper;
+import com.baidu.shop.mapper.CategoryMapper;
 import com.baidu.shop.mapper.SpuMapper;
 import com.baidu.shop.service.SpuService;
+import com.baidu.shop.status.HTTPStatus;
 import com.baidu.shop.util.UtilNull;
 import com.baidu.shop.utils.BaiduBeanUtil;
 import com.github.pagehelper.PageHelper;
@@ -16,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 2 * @ClassName SpuServiceImpl
@@ -33,10 +38,13 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
     private SpuMapper spuMapper;
 
     @Resource
-    private BrandMapper BrandMapper;
+    private BrandMapper brandMapper;
+
+    @Resource
+    private CategoryMapper categoryMapper;
 
     @Override
-    public Result<PageInfo<SpuEntity>> list(SpuDTO spuDTO) {
+    public Result<List<SpuDTO>> list(SpuDTO spuDTO) {
 
         if(UtilNull.isNotNull(spuDTO.getPage()) && UtilNull.isNotNull(spuDTO.getRows()))
         PageHelper.startPage(spuDTO.getPage(),spuDTO.getRows());
@@ -54,9 +62,39 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
 
         List<SpuEntity> spuEntities = spuMapper.selectByExample(example);
 
+        List<SpuDTO> spuDTOList = spuEntities.stream().map(spuEntity -> {
+            SpuDTO spuDTO1 = BaiduBeanUtil.beanUtil(spuEntity, SpuDTO.class);
+//            //查询分类name
+//            CategoryEntity categoryEntity = categoryMapper.selectByPrimaryKey(spuEntity.getCid1());
+//            CategoryEntity categoryEntity2 = categoryMapper.selectByPrimaryKey(spuEntity.getCid2());
+//            CategoryEntity categoryEntity3= categoryMapper.selectByPrimaryKey(spuEntity.getCid3());
+//            spuDTO1.setCategoryName(categoryEntity.getName()+"-"+categoryEntity2.getName()+"-"+categoryEntity3.getName());
+
+
+            //使用多查询,查询出三条数据
+            List<CategoryEntity> categoryEntities = categoryMapper.selectByIdList(Arrays.asList(spuDTO1.getCid1(), spuDTO1.getCid2(), spuDTO1.getCid3()));
+            //把三条数据的name用/拼接
+            String collect = categoryEntities.stream().map(CategoryEntity -> CategoryEntity.getName()).collect(Collectors.joining("/"));
+            spuDTO1.setCategoryName(collect);
+
+            //////与上面结果一样
+            //spuDTO1.setCategoryName(categoryMapper
+            // .selectByIdList(Arrays.asList(spuDTO1.getCid1(), spuDTO1.getCid2(), spuDTO1.getCid3()))
+            // .stream().map(CategoryEntity -> CategoryEntity.getName())
+            // .collect(Collectors.joining("-")));
+
+            //根据商品中的brandId查询出品牌name
+            BrandEntity brandEntity = brandMapper.selectByPrimaryKey(spuEntity.getBrandId());
+            spuDTO1.setBrandName(brandEntity.getName());
+
+            return spuDTO1;
+        }).collect(Collectors.toList());
+
+
         PageInfo<SpuEntity> spuEntityPageInfo = new PageInfo<>(spuEntities);
 
-        return this.setResultSuccess(spuEntityPageInfo);
+
+        return this.setResult(HTTPStatus.OK,spuEntityPageInfo.getTotal()+"",spuDTOList);
     }
 
 }

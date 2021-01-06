@@ -29,6 +29,10 @@ public class BaseApiService<T> {
     public Result<T> setResultSuccess(T data) {
         return setResult(HTTPStatus.OK, HTTPStatus.OK + "", data);
     }
+    // 返回成功，可以传data值
+    public Result<T> setResultSuccess(String msg,T data) {
+        return setResult(HTTPStatus.OK, msg + "", data);
+    }
     // 返回成功，沒有data值
     public Result<T> setResultSuccess() {
         return setResult(HTTPStatus.OK, HTTPStatus.OK + "", null);

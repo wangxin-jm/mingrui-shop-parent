@@ -2,11 +2,11 @@ package com.baidu.shop.service;
 
 import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.SpuDTO;
-import com.baidu.shop.entity.SpuEntity;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
 
 /**
  * 2 * @ClassName SpuService
@@ -21,5 +21,5 @@ public interface SpuService {
 
     @ApiOperation("商品查询")
     @GetMapping("goods/list")
-    Result<PageInfo<SpuEntity>> list(SpuDTO spuDTO);
+    Result<List<SpuDTO>> list(SpuDTO spuDTO);
 }

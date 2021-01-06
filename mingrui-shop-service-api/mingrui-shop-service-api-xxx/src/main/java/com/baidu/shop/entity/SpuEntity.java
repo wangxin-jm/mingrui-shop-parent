@@ -40,4 +40,5 @@ public class SpuEntity {
     private Date createTime;
 
     private Date lastUpdateTime;
+
 }
