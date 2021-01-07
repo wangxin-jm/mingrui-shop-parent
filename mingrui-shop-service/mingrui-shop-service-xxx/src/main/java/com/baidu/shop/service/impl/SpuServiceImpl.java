@@ -1,25 +1,27 @@
 package com.baidu.shop.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
+import com.baidu.shop.dto.SkuDTO;
 import com.baidu.shop.dto.SpuDTO;
-import com.baidu.shop.entity.BrandEntity;
-import com.baidu.shop.entity.CategoryEntity;
-import com.baidu.shop.entity.SpuEntity;
-import com.baidu.shop.mapper.BrandMapper;
-import com.baidu.shop.mapper.CategoryMapper;
-import com.baidu.shop.mapper.SpuMapper;
+import com.baidu.shop.dto.SpuDetailDTO;
+import com.baidu.shop.entity.*;
+import com.baidu.shop.mapper.*;
 import com.baidu.shop.service.SpuService;
 import com.baidu.shop.status.HTTPStatus;
 import com.baidu.shop.util.UtilNull;
 import com.baidu.shop.utils.BaiduBeanUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -43,12 +45,64 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
     @Resource
     private CategoryMapper categoryMapper;
 
+    @Resource
+    private SpuDetailMapper spuDetailMapper;
+
+    @Resource
+    private StockMapper StockMapper;
+
+    @Resource
+    private SkuMapper SkuMapper;
+
+    @Override
+    @Transactional
+    public Result<JSONObject> save(SpuDTO spuDTO) {
+
+        final Date date = new Date();
+        SpuEntity spuEntity = BaiduBeanUtil.beanUtil(spuDTO, SpuEntity.class);
+        spuEntity.setSaleable(1);
+        spuEntity.setValid(1);
+        spuEntity.setCreateTime(date);
+        spuEntity.setLastUpdateTime(date);
+        spuMapper.insertSelective(spuEntity);
+
+        SpuDetailDTO spuDetail = spuDTO.getSpuDetail();
+        SpuDetailEntity spuDetailEntity1 = BaiduBeanUtil.beanUtil(spuDetail, SpuDetailEntity.class);
+
+        spuDetailEntity1.setSpuId(spuEntity.getId());
+
+        spuDetailMapper.insertSelective(spuDetailEntity1);
+        List<SkuDTO> skus = spuDTO.getSkus();
+
+        skus.stream().forEach(skuDTO -> {
+            SkuEntity skuEntity = BaiduBeanUtil.beanUtil(skuDTO, SkuEntity.class);
+            skuEntity.setSpuId(spuEntity.getId());
+            skuEntity.setCreateTime(date);
+            skuEntity.setLastUpdateTime(date);
+            SkuMapper.insertSelective(skuEntity);
+
+            StockEntity stockEntity = new StockEntity();
+            stockEntity.setSkuId(skuEntity.getId());
+            Integer stock = skuDTO.getStock();
+            stockEntity.setStock(stock);
+            StockMapper.insertSelective(stockEntity);
+
+
+        } );
+
+        return this.setResultSuccess();
+    }
+
+
     @Override
     public Result<List<SpuDTO>> list(SpuDTO spuDTO) {
 
         if(UtilNull.isNotNull(spuDTO.getPage()) && UtilNull.isNotNull(spuDTO.getRows()))
         PageHelper.startPage(spuDTO.getPage(),spuDTO.getRows());
 
+        if(!StringUtils.isEmpty(spuDTO.getSort()) && UtilNull.isNotNull(spuDTO.getOrder())){
+            PageHelper.orderBy(spuDTO.getOrderByClause());
+        }
 
         Example example = new Example(SpuEntity.class);
         Example.Criteria criteria = example.createCriteria();
@@ -96,5 +150,7 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
 
         return this.setResult(HTTPStatus.OK,spuEntityPageInfo.getTotal()+"",spuDTOList);
     }
+
+
 
 }

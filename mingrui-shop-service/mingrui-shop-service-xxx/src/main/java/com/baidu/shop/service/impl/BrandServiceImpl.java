@@ -40,7 +40,12 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
     @Resource
     private CategoryBrandMapper categoryBrandMapper;
 
+    @Override
+    public Result<List<BrandEntity>> getListCategoryBrand(Integer cid) {
 
+        List<BrandEntity> listCategoryBrand = mapper.getListCategoryBrand(cid);
+        return this.setResultSuccess(listCategoryBrand);
+    }
 
     @Override
     @Transactional
@@ -55,6 +60,8 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
 
         return this.setResultSuccess("删除成功");
     }
+
+
 
 
     @Override

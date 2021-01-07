@@ -12,4 +12,6 @@ import tk.mybatis.mapper.common.Mapper;
  * 7
  **/
 public interface SpenParamMapper extends Mapper<SpecParamEntity> {
+
+
 }
