@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -25,11 +26,11 @@ public class SpecGroupDTO extends BaseDTO {
     private Integer id;
 
     @ApiModelProperty(value = "类型Id",example = "1")
-    @NotNull(message = "类型Id不能为空",groups = {MingruiOperation.Add.class})
+    @NotNull(message = "类型cId不能为空",groups = {MingruiOperation.Add.class,MingruiOperation.Update.class})
     private Integer cid;
 
     @ApiModelProperty("规格组名称")
-    @NotNull(message = "规格组名称不能为空",groups = {MingruiOperation.Add.class})
+    @NotEmpty(message = "规格组名称不能为空",groups = {MingruiOperation.Add.class,MingruiOperation.Update.class})
     private String name;
 
 

@@ -1,10 +1,13 @@
 package com.baidu.shop.entity;
 
+import com.baidu.shop.validate.group.MingruiOperation;
 import lombok.Data;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 /**
  * 2 * @ClassName SpecParamEntity

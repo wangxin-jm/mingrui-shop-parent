@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.SpecGroupDTO;
 import com.baidu.shop.entity.SpecificationEntity;
+import com.baidu.shop.validate.group.MingruiOperation;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,11 +21,11 @@ public interface SpecificationService {
 
     @ApiOperation("新增")
     @PostMapping("spec/save")
-    Result<JSONObject> save(@RequestBody SpecGroupDTO specGroupDTO);
+    Result<JSONObject> save(@Validated({MingruiOperation.Add.class})@RequestBody SpecGroupDTO specGroupDTO);
 
     @ApiOperation("修改")
     @PutMapping("spec/save")
-    Result<JSONObject> update(@RequestBody SpecGroupDTO specGroupDTO);
+    Result<JSONObject> update(@Validated({MingruiOperation.Update.class})@RequestBody SpecGroupDTO specGroupDTO);
 
     @ApiOperation("删除")
     @DeleteMapping("spec/delete")

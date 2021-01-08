@@ -33,9 +33,11 @@ public class BrandDTO extends BaseDTO {
     private String image;
 
     @ApiModelProperty(value = "品牌首字母")
+    @NotNull(message = "品牌首字母不能为空", groups ={MingruiOperation.Add.class,MingruiOperation.Update.class})
     private Character letter;
 
     @ApiModelProperty(value = "品牌id集合")
+    @NotNull(message = "品牌id集合不能为空", groups ={MingruiOperation.Add.class,MingruiOperation.Update.class})
     private String categories;
 
 }

@@ -54,6 +54,88 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
     @Resource
     private SkuMapper SkuMapper;
 
+
+
+    @Override
+    public Result<JSONObject> updateXia(SpuDTO spuDTO) {
+        this.sahngjiaAndxiajia(spuDTO,0);
+        return this.setResultSuccess();
+    }
+
+    @Override
+    public Result<JSONObject> updateShang(SpuDTO spuDTO) {
+        this.sahngjiaAndxiajia(spuDTO,1);
+        return this.setResultSuccess();
+    }
+
+    //上架下架
+    public void sahngjiaAndxiajia(SpuDTO spuDTO,Integer i){
+        SpuEntity spuEntity = BaiduBeanUtil.beanUtil(spuDTO, SpuEntity.class);
+        spuEntity.setSaleable(i);
+        spuMapper.updateByPrimaryKeySelective(spuEntity);
+    }
+    @Override
+    @Transactional
+    public Result<JSONObject> delete(Integer id) {
+        spuMapper.deleteByPrimaryKey(id);
+        spuDetailMapper.deleteByPrimaryKey(id);
+
+        this.sahnchu(id);
+
+        return this.setResultSuccess();
+    }
+
+    @Override
+    @Transactional
+    public Result<JSONObject> update(SpuDTO spuDTO) {
+
+        final Date date = new Date();
+        SpuEntity spuEntity = BaiduBeanUtil.beanUtil(spuDTO, SpuEntity.class);
+        spuMapper.updateByPrimaryKeySelective(spuEntity);
+
+        SpuDetailDTO spuDetail = spuDTO.getSpuDetail();
+
+        spuDetailMapper.updateByPrimaryKeySelective(BaiduBeanUtil.beanUtil(spuDetail,SpuDetailEntity.class));
+
+
+        this.sahnchu(spuEntity.getId());
+
+        this.saveSkuAndStock(spuDTO,spuEntity.getId(),date);
+
+        return this.setResultSuccess();
+    }
+
+    public void sahnchu(Integer spuId){
+        //需要先查询出来,然后在删除,然后在新增
+        Example example = new Example(SkuEntity.class);
+        example.createCriteria().andEqualTo("spuId",spuId);
+        List<SkuEntity> skuEntities = SkuMapper.selectByExample(example);
+        List<Long> collect = skuEntities.stream().map(SkuEntity ->  SkuEntity.getId()).collect(Collectors.toList());
+
+        //删除表中的数据,因为是一对多的关系,关系到多张表的数据
+        SkuMapper.deleteByIdList(collect);
+        StockMapper.deleteByIdList(collect);
+    }
+
+
+    @Override
+    public Result<SpuDetailEntity> spuDetailList(Integer spuId) {
+
+
+        return this.setResultSuccess(spuDetailMapper.selectByPrimaryKey(spuId));
+    }
+
+    @Override
+    public Result<List<SkuDTO>> getSpuSkuByIdList(Integer spuId) {
+       List<SkuDTO> list = SkuMapper.getSpuSkuByIdList(spuId);
+
+        return this.setResultSuccess(list);
+    }
+
+
+
+
+
     @Override
     @Transactional
     public Result<JSONObject> save(SpuDTO spuDTO) {
@@ -72,26 +154,13 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
         spuDetailEntity1.setSpuId(spuEntity.getId());
 
         spuDetailMapper.insertSelective(spuDetailEntity1);
-        List<SkuDTO> skus = spuDTO.getSkus();
 
-        skus.stream().forEach(skuDTO -> {
-            SkuEntity skuEntity = BaiduBeanUtil.beanUtil(skuDTO, SkuEntity.class);
-            skuEntity.setSpuId(spuEntity.getId());
-            skuEntity.setCreateTime(date);
-            skuEntity.setLastUpdateTime(date);
-            SkuMapper.insertSelective(skuEntity);
-
-            StockEntity stockEntity = new StockEntity();
-            stockEntity.setSkuId(skuEntity.getId());
-            Integer stock = skuDTO.getStock();
-            stockEntity.setStock(stock);
-            StockMapper.insertSelective(stockEntity);
-
-
-        } );
+        this.saveSkuAndStock(spuDTO,spuEntity.getId(),date);
 
         return this.setResultSuccess();
     }
+
+
 
 
     @Override
@@ -149,6 +218,25 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
 
 
         return this.setResult(HTTPStatus.OK,spuEntityPageInfo.getTotal()+"",spuDTOList);
+    }
+
+
+    //封装新增方法
+    public void saveSkuAndStock(SpuDTO spuDTO,Integer spuId,Date date){
+        List<SkuDTO> skus = spuDTO.getSkus();
+        skus.stream().forEach(skuDTO ->{
+            SkuEntity skuEntity = BaiduBeanUtil.beanUtil(skuDTO, SkuEntity.class);
+            skuEntity.setSpuId(spuId);
+            skuEntity.setCreateTime(date);
+            skuEntity.setLastUpdateTime(date);
+            SkuMapper.insertSelective(skuEntity);
+
+            StockEntity stockEntity = new StockEntity();
+            stockEntity.setSkuId(skuEntity.getId());
+            stockEntity.setStock(skuDTO.getStock());
+            StockMapper.insertSelective(stockEntity);
+        });
+
     }
 
 

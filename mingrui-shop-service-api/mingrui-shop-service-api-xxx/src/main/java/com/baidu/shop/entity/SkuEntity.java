@@ -38,6 +38,7 @@ public class SkuEntity {
 
     private Integer enable;
 
+
     private Date CreateTime;
 
     private Date lastUpdateTime;

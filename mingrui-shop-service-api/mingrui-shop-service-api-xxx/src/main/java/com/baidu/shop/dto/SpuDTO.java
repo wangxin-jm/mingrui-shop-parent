@@ -35,31 +35,35 @@ public class SpuDTO extends BaseDTO {
     private String subTitle;
 
     @ApiModelProperty(value="1级类目id",example = "1")
-    @NotNull(message = "1级类目id不能为空",groups = {MingruiOperation.Add.class})
+    @NotNull(message = "1级类目id不能为空",groups = {MingruiOperation.Add.class,MingruiOperation.Update.class})
     private Integer cid1;
 
     @ApiModelProperty(value="2级类目id",example = "1")
-    @NotNull(message = "2级类目id不能为空",groups = {MingruiOperation.Add.class})
+    @NotNull(message = "2级类目id不能为空",groups = {MingruiOperation.Add.class,MingruiOperation.Update.class})
     private Integer cid2;
 
     @ApiModelProperty(value="3级类目id",example = "1")
-    @NotNull(message = "3级类目id不能为空",groups = {MingruiOperation.Add.class})
+    @NotNull(message = "3级类目id不能为空",groups = {MingruiOperation.Add.class,MingruiOperation.Update.class})
     private Integer cid3;
 
     @ApiModelProperty(value="商品所属品牌id",example = "1")
-    @NotNull(message = "商品所属品牌Id不能为空",groups = {MingruiOperation.Add.class})
+    @NotNull(message = "商品所属品牌Id不能为空",groups = {MingruiOperation.Add.class,MingruiOperation.Update.class})
     private Integer brandId;
 
     @ApiModelProperty("上架为1,不上架为0")
+    @NotNull(message = "是否上架不能为空",groups = {MingruiOperation.Add.class,MingruiOperation.Update.class})
     private Integer saleable;
 
     @ApiModelProperty(value = "是否有效，0已删除，1有效", example = "1")
+    @NotNull(message = "是否有效不能为空",groups = {MingruiOperation.Add.class,MingruiOperation.Update.class})
     private Integer valid;
 
     @ApiModelProperty(value = "添加时间")
+    @NotNull(message = "添加时间不能为空",groups = {MingruiOperation.Add.class,MingruiOperation.Update.class})
     private Date createTime;
 
     @ApiModelProperty(value = "最后修改时间")
+    @NotNull(message = "最后修改时间不能为空",groups = {MingruiOperation.Add.class,MingruiOperation.Update.class})
     private Date lastUpdateTime;
 
     private String brandName;
