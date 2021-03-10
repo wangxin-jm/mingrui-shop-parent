@@ -16,7 +16,7 @@ public interface CategoryService {
 
     @ApiOperation(value = "通过查询商品分类")
     @GetMapping(value="category/list")
-    Result<List<CategoryEntity>> getCategoryByPid(Integer pid);
+    Result<List<CategoryEntity>> getCategoryByPid(@RequestParam Integer pid);
 
     @ApiOperation(value = "通过品牌查询分类id")
     @GetMapping(value="category/brand")
@@ -33,4 +33,9 @@ public interface CategoryService {
     @ApiOperation("新增数据")
     @PostMapping("category/save")
     Result<JsonObject> save(@Validated({MingruiOperation.Add.class}) @RequestBody CategoryEntity categoryEntity);
+
+
+    @ApiOperation(value = "通过分类id查询分类信息")
+    @GetMapping(value="category/getCategoryByid")
+    Result<List<CategoryEntity>> getCategoryByid(@RequestParam String ids);
 }

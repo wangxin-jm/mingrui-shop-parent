@@ -9,6 +9,7 @@ import com.baidu.shop.entity.CategoryBrandEntity;
 import com.baidu.shop.mapper.BrandMapper;
 import com.baidu.shop.mapper.CategoryBrandMapper;
 import com.baidu.shop.service.BrandService;
+import com.baidu.shop.util.UtilNull;
 import com.baidu.shop.utils.BaiduBeanUtil;
 import com.baidu.shop.utils.PinyinUtil;
 import com.github.pagehelper.PageHelper;
@@ -45,6 +46,14 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
 
         List<BrandEntity> listCategoryBrand = mapper.getListCategoryBrand(cid);
         return this.setResultSuccess(listCategoryBrand);
+    }
+
+    @Override
+    public Result<List<BrandEntity>> getBrandByIdList(String ids) {
+        List<Integer> collect = Arrays.asList(ids.split(",")).stream().map(idlist ->
+                Integer.valueOf(idlist)).collect(Collectors.toList());
+
+        return this.setResultSuccess(mapper.selectByIdList(collect));
     }
 
     @Override
@@ -110,7 +119,10 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
     @Override
     public Result<PageInfo<BrandEntity>> list(BrandDTO brandDTO) {
         //分页 给他们赋值
-        PageHelper.startPage(brandDTO.getPage(),brandDTO.getRows());
+        if(UtilNull.isNotNull(brandDTO.getPage()) && UtilNull.isNotNull(brandDTO.getRows())){
+            PageHelper.startPage(brandDTO.getPage(),brandDTO.getRows());
+        }
+
 
 //            if(!StringUtils.isEmpty(brandDTO.getOrder())){
 ////                    String paixu = "";
@@ -126,7 +138,14 @@ public class BrandServiceImpl extends BaseApiService implements BrandService {
         BrandEntity brandEntity = BaiduBeanUtil.beanUtil(brandDTO, BrandEntity.class);
 
         Example example = new Example(BrandEntity.class);
-        example.createCriteria().andLike("name","%"+brandEntity.getName()+"%");
+        Example.Criteria criteria = example.createCriteria();
+        if(UtilNull.isNotNull(brandDTO.getName())){
+            criteria.andLike("name","%"+brandEntity.getName()+"%");
+        }
+        if(UtilNull.isNotNull(brandDTO.getId())){
+            criteria.andEqualTo("id",brandDTO.getId());
+        }
+
         List<BrandEntity> brandEntities = mapper.selectByExample(example);
 
         PageInfo<BrandEntity> objectPageInfo = new PageInfo<>(brandEntities);

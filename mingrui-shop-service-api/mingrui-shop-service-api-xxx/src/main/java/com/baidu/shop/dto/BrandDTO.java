@@ -41,3 +41,4 @@ public class BrandDTO extends BaseDTO {
     private String categories;
 
 }
+

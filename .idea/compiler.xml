@@ -7,14 +7,22 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="mingrui-shop-basic-eureka-server" />
-        <module name="mingrui-shop-service-api-xxx" />
         <module name="mingrui-shopcommon-core" />
-        <module name="mingrui-shop-basiczuul-server" />
+        <module name="mingrui-shop-service-api-template" />
         <module name="mingrui-shop-service-xxx" />
+        <module name="mingrui-shop-basic-eureka-server" />
+        <module name="mingrui-shop-service-searchs" />
+        <module name="mingrui-shop-service-template" />
+        <module name="mingrui-shop-service-api-xxx" />
+        <module name="mingrui-shop-basiczuul-server" />
+        <module name="mingrui-shop-service-api-search" />
         <module name="mingrui-shop-basic-uploadserver" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="mingrui-shop-service- template" target="1.8" />
+      <module name="mingrui-shop-service-search" target="1.8" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -24,8 +32,14 @@
       <module name="mingrui-shop-basiczuul-server" options="-parameters" />
       <module name="mingrui-shop-commoms" options="-parameters" />
       <module name="mingrui-shop-service" options="-parameters" />
+      <module name="mingrui-shop-service- template" options="-parameters" />
       <module name="mingrui-shop-service-api" options="-parameters" />
+      <module name="mingrui-shop-service-api-search" options="-parameters" />
+      <module name="mingrui-shop-service-api-template" options="-parameters" />
       <module name="mingrui-shop-service-api-xxx" options="-parameters" />
+      <module name="mingrui-shop-service-search" options="-parameters" />
+      <module name="mingrui-shop-service-searchs" options="-parameters" />
+      <module name="mingrui-shop-service-template" options="-parameters" />
       <module name="mingrui-shop-service-xxx" options="-parameters" />
       <module name="mingrui-shopcommon-core" options="-parameters" />
     </option>

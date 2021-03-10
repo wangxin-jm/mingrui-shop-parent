@@ -9,12 +9,13 @@ import com.baidu.shop.entity.SpecificationEntity;
 import com.baidu.shop.mapper.SpecGroupMapper;
 import com.baidu.shop.mapper.SpenParamMapper;
 import com.baidu.shop.service.SpecificationService;
+import com.baidu.shop.util.UtilNull;
 import com.baidu.shop.utils.BaiduBeanUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -28,10 +29,10 @@ import java.util.List;
 @RestController
 public class SpecificationServiceImpl extends BaseApiService implements SpecificationService {
 
-    @Autowired
+    @Resource
     private SpecGroupMapper specGroupMapper;
 
-    @Autowired
+    @Resource
     private SpenParamMapper spenParamMapper;
 
 
@@ -40,9 +41,15 @@ public class SpecificationServiceImpl extends BaseApiService implements Specific
 
 
         Example example = new Example(SpecificationEntity.class);
-        example.createCriteria().andEqualTo("cid",BaiduBeanUtil.beanUtil(specGroupDTO, SpecificationEntity.class).getCid());
+        Example.Criteria criteria = example.createCriteria();
+        if(UtilNull.isNotNull(specGroupDTO.getCid())){
+        criteria.andEqualTo("cid",BaiduBeanUtil.beanUtil(specGroupDTO, SpecificationEntity.class).getCid());
+        }
         List<SpecificationEntity> specificationEntities = specGroupMapper.selectByExample(example);
 
+        if(UtilNull.isNotNull(specGroupDTO.getId())){
+            criteria.andEqualTo("id",specGroupDTO.getId());
+        }
         return this.setResultSuccess(specificationEntities);
     }
 

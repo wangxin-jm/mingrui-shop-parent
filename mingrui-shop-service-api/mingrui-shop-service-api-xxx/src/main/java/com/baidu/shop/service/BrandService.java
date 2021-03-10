@@ -8,6 +8,7 @@ import com.baidu.shop.validate.group.MingruiOperation;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,7 @@ public interface BrandService {
 
     @GetMapping(value = "brand/list")
     @ApiOperation(value ="查询商品")
-    Result<PageInfo<BrandEntity>> list(BrandDTO brandDTO);
+    Result<PageInfo<BrandEntity>> list(@SpringQueryMap BrandDTO brandDTO);
 
     @PostMapping(value="brand/save")
     @ApiOperation(value="新增数据")
@@ -35,4 +36,8 @@ public interface BrandService {
     @GetMapping(value = "brand/getListCategoryBrand")
     @ApiOperation(value ="通过分类id查询品牌")
     Result<List<BrandEntity>> getListCategoryBrand(Integer cid);
+
+    @GetMapping(value = "brand/getBrandByIdList")
+    @ApiOperation(value ="通过品牌id查询品牌列表")
+    Result<List<BrandEntity>> getBrandByIdList(@RequestParam String ids);
 }

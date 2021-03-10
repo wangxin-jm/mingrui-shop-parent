@@ -3,6 +3,8 @@ package com.baidu.shop.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baidu.shop.base.BaseApiService;
 import com.baidu.shop.base.Result;
+import com.baidu.shop.component.MrRabbitMQ;
+import com.baidu.shop.constant.MqMessageConstant;
 import com.baidu.shop.dto.SkuDTO;
 import com.baidu.shop.dto.SpuDTO;
 import com.baidu.shop.dto.SpuDetailDTO;
@@ -15,6 +17,7 @@ import com.baidu.shop.utils.BaiduBeanUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
@@ -54,6 +57,8 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
     @Resource
     private SkuMapper SkuMapper;
 
+    @Autowired
+    private MrRabbitMQ mrRabbitMQ;
 
 
     @Override
@@ -75,20 +80,34 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
         spuMapper.updateByPrimaryKeySelective(spuEntity);
     }
     @Override
-    @Transactional
     public Result<JSONObject> delete(Integer id) {
-        spuMapper.deleteByPrimaryKey(id);
-        spuDetailMapper.deleteByPrimaryKey(id);
 
-        this.sahnchu(id);
+        this.getDelete(id);
+        mrRabbitMQ.send(id + "", MqMessageConstant.SPU_ROUT_KEY_DELETE);
 
         return this.setResultSuccess();
     }
 
-    @Override
     @Transactional
+    public void getDelete(Integer id){
+        spuMapper.deleteByPrimaryKey(id);
+        spuDetailMapper.deleteByPrimaryKey(id);
+
+        this.sahnchu(id);
+    }
+
+    @Override
     public Result<JSONObject> update(SpuDTO spuDTO) {
 
+        this.getUpdate(spuDTO);
+
+        mrRabbitMQ.send(spuDTO.getId() + "", MqMessageConstant.SPU_ROUT_KEY_UPDATE);
+
+        return this.setResultSuccess();
+    }
+
+    @Transactional
+    public  void  getUpdate(SpuDTO spuDTO){
         final Date date = new Date();
         SpuEntity spuEntity = BaiduBeanUtil.beanUtil(spuDTO, SpuEntity.class);
         spuMapper.updateByPrimaryKeySelective(spuEntity);
@@ -97,13 +116,13 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
 
         spuDetailMapper.updateByPrimaryKeySelective(BaiduBeanUtil.beanUtil(spuDetail,SpuDetailEntity.class));
 
-
         this.sahnchu(spuEntity.getId());
 
         this.saveSkuAndStock(spuDTO,spuEntity.getId(),date);
 
-        return this.setResultSuccess();
     }
+
+
 
     public void sahnchu(Integer spuId){
         //需要先查询出来,然后在删除,然后在新增
@@ -137,17 +156,25 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
 
 
     @Override
-    @Transactional
     public Result<JSONObject> save(SpuDTO spuDTO) {
 
+        Integer spuId = this.saveGoodsTransactional(spuDTO);
+        mrRabbitMQ.send( spuId+ "",MqMessageConstant.SPU_ROUT_KEY_SAVE);
+
+        return this.setResultSuccess();
+    }
+
+    @Transactional
+    public Integer saveGoodsTransactional(SpuDTO spuDTO){
         final Date date = new Date();
+        //新增spu,新增返回主键, 给必要字段赋默认值
         SpuEntity spuEntity = BaiduBeanUtil.beanUtil(spuDTO, SpuEntity.class);
         spuEntity.setSaleable(1);
         spuEntity.setValid(1);
         spuEntity.setCreateTime(date);
         spuEntity.setLastUpdateTime(date);
         spuMapper.insertSelective(spuEntity);
-
+//新增spuDetail
         SpuDetailDTO spuDetail = spuDTO.getSpuDetail();
         SpuDetailEntity spuDetailEntity1 = BaiduBeanUtil.beanUtil(spuDetail, SpuDetailEntity.class);
 
@@ -155,9 +182,10 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
 
         spuDetailMapper.insertSelective(spuDetailEntity1);
 
+        //新增sku list插入顺序有序 b,a set a,b treeSet b,a
         this.saveSkuAndStock(spuDTO,spuEntity.getId(),date);
 
-        return this.setResultSuccess();
+            return spuEntity.getId();
     }
 
 
@@ -168,10 +196,10 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
 
         if(UtilNull.isNotNull(spuDTO.getPage()) && UtilNull.isNotNull(spuDTO.getRows()))
         PageHelper.startPage(spuDTO.getPage(),spuDTO.getRows());
-
-        if(!StringUtils.isEmpty(spuDTO.getSort()) && UtilNull.isNotNull(spuDTO.getOrder())){
+        if(!StringUtils.isEmpty(spuDTO.getSort()) && !StringUtils.isEmpty(spuDTO.getOrder())){
             PageHelper.orderBy(spuDTO.getOrderByClause());
         }
+
 
         Example example = new Example(SpuEntity.class);
         Example.Criteria criteria = example.createCriteria();
@@ -180,8 +208,12 @@ public class SpuServiceImpl extends BaseApiService implements SpuService {
                 && BaiduBeanUtil.beanUtil(spuDTO,SpuEntity.class).getSaleable() <2){
             criteria.andEqualTo("saleable",BaiduBeanUtil.beanUtil(spuDTO,SpuEntity.class).getSaleable());
         }
-
-        criteria.andLike("title","%"+spuDTO.getTitle()+"%");
+        if(null!=spuDTO.getTitle()){
+            criteria.andLike("title","%"+spuDTO.getTitle()+"%");
+        }
+        if(UtilNull.isNotNull(spuDTO.getId())){
+            criteria.andEqualTo("id",spuDTO.getId());
+        }
 
         List<SpuEntity> spuEntities = spuMapper.selectByExample(example);
 

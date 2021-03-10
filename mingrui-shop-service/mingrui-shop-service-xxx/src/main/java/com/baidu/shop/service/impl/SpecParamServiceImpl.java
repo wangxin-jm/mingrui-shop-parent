@@ -31,7 +31,7 @@ public class SpecParamServiceImpl  extends BaseApiService implements SpecParamSe
     private SpenParamMapper spenParamMapper;
 
     @Override
-    public Result<SpecParamEntity> list(SpecParamDTO specParamDTO) {
+    public Result<List<SpecParamEntity>> list(SpecParamDTO specParamDTO) {
 
         Example example = new Example(SpecParamEntity.class);
         Example.Criteria criteria = example.createCriteria();
@@ -41,6 +41,9 @@ public class SpecParamServiceImpl  extends BaseApiService implements SpecParamSe
         if(UtilNull.isNotNull(specParamDTO.getCid()))
             criteria.andEqualTo("cid",BaiduBeanUtil.beanUtil(specParamDTO,SpecParamEntity.class).getCid());
 
+        if(UtilNull.isNotNull(specParamDTO.getGeneric())){
+            criteria.andEqualTo("generic",BaiduBeanUtil.beanUtil(specParamDTO,SpecParamEntity.class).getGeneric());
+        }
         List<SpecParamEntity> specParamEntities = spenParamMapper.selectByExample(example);
 
         return this.setResultSuccess(specParamEntities);

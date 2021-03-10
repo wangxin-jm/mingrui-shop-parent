@@ -37,6 +37,8 @@ public class BaseApiService<T> {
     public Result<T> setResultSuccess() {
         return setResult(HTTPStatus.OK, HTTPStatus.OK + "", null);
     }
+
+
     // 返回成功，沒有data值
     public Result<T> setResultSuccess(String msg) {
         return setResult(HTTPStatus.OK, msg, null);

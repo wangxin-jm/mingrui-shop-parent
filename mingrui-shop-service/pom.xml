@@ -17,6 +17,11 @@
     <packaging>pom</packaging>
     <modules>
         <module>mingrui-shop-service-xxx</module>
+        <module>mingrui-shop-service-searchs</module>
+        <module>mingrui-shop-service- template</module>
+        <module>mingrui-shop-service- template</module>
+        <module>mingrui-shop-service- template</module>
+        <module>mingrui-shop-service-template</module>
     </modules>
     <dependencies>
         <!-- SpringBoot-整合Web组件 -->
@@ -55,6 +60,10 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
 
 
     </dependencies>

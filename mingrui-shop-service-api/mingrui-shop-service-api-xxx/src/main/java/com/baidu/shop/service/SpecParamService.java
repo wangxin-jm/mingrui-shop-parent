@@ -7,15 +7,19 @@ import com.baidu.shop.entity.SpecParamEntity;
 import com.baidu.shop.validate.group.MingruiOperation;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Api(tags = "规格参数接口")
 public interface SpecParamService {
 
     @ApiOperation("规格参数查询")
     @GetMapping("specParam/list")
-    Result<SpecParamEntity> list(SpecParamDTO specParamDTO);
+    Result <List<SpecParamEntity>> list(@SpringQueryMap SpecParamDTO specParamDTO);
+
 
     @ApiOperation("规格参数新增")
     @PostMapping("specParam/save")

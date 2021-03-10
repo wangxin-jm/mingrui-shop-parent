@@ -8,6 +8,7 @@ import com.baidu.shop.entity.SpuDetailEntity;
 import com.baidu.shop.validate.group.MingruiOperation;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,23 +27,23 @@ public interface SpuService {
 
     @ApiOperation("商品查询")
     @GetMapping("goods/list")
-    Result<List<SpuDTO>> list(SpuDTO spuDTO);
+    Result<List<SpuDTO>> list(@SpringQueryMap SpuDTO spuDTO);
 
     @ApiOperation("新增商品")
     @PostMapping("goods/save")
-    Result<JSONObject> save(@Validated({MingruiOperation.Add.class})@RequestBody SpuDTO spuDTO);
+    Result<JSONObject> save(@RequestBody SpuDTO spuDTO);
 
     @ApiOperation("修改商品")
     @PutMapping("goods/save")
-    Result<JSONObject> update(@Validated({MingruiOperation.Update.class})@RequestBody SpuDTO spuDTO);
+    Result<JSONObject> update(@RequestBody SpuDTO spuDTO);
 
     @ApiOperation("根据id查询SpuDetail")
     @GetMapping("goods/spuDetailList")
-    Result<SpuDetailEntity> spuDetailList(Integer spuId);
+    Result<SpuDetailEntity> spuDetailList(@RequestParam Integer spuId);
 
     @ApiOperation("")
     @GetMapping("goods/getSpuSkuByIdList")
-    Result<List<SkuDTO>> getSpuSkuByIdList(Integer spuId);
+    Result<List<SkuDTO>> getSpuSkuByIdList(@RequestParam Integer spuId);
 
     @ApiOperation("删除商品")
     @DeleteMapping("goods/delete")

@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 2 * @ClassName CategoryServiceImpl
@@ -32,6 +34,17 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
 
     @Autowired
     private CategoryBrandMapper categoryBrandMapper;
+
+
+
+    @Override
+    public Result<List<CategoryEntity>> getCategoryByid(String ids) {
+
+        List<Integer> collect = Arrays.asList(ids.split(",")).stream().map(idsList ->
+                Integer.valueOf(idsList)).collect(Collectors.toList());
+
+        return this.setResultSuccess(mapper.selectByIdList(collect));
+    }
 
 
     @Override
@@ -59,12 +72,7 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
 
 //        if (UtilNull.isNull(id)  || id <= 0) return this.setResultError("id不合法");
 //
-//        //查询当前的数据是不是父节点(就是isparent == 1 )如果等于一就直接返回
-//        CategoryEntity categoryEntity = mapper.selectByPrimaryKey(id);
-//
-//        if(UtilNull.isNull(categoryEntity)) return this.setResultError("找不到当前数据");
-//
-//
+
 //        if(categoryEntity.getIsParent() == 1) return  this.setResultError("当前id为父节点不能被删除");
 //
 //        //根据当前数据查查到他们呢的父节点是谁，如果只有一条数据删了了那么他的父节点就会变成叶子节点
@@ -156,4 +164,6 @@ public class CategoryServiceImpl extends BaseApiService implements CategoryServi
         mapper.insertSelective(categoryEntity);
         return this.setResultSuccess("新增成功");
     }
+
+
 }
