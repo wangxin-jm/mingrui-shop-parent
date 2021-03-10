@@ -22,6 +22,7 @@
         <module>mingrui-shop-service- template</module>
         <module>mingrui-shop-service- template</module>
         <module>mingrui-shop-service-template</module>
+        <module>mingrui-shop-service-user</module>
     </modules>
     <dependencies>
         <!-- SpringBoot-整合Web组件 -->
