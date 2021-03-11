@@ -1,5 +1,6 @@
 package com.baidu.shop.service;
 
+
 import com.alibaba.fastjson.JSONObject;
 import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.UserDTO;
@@ -16,9 +17,13 @@ import java.util.List;
 @Api(tags = "用户接口")
 public interface UserService {
 
+    @ApiOperation(value = "验证码")
+    @GetMapping(value = "user/yanzhengma")
+    Result<JSONObject> yanzhengma(String phone1, String code1);
+
     @ApiOperation(value = "用户注册")
     @PostMapping(value = "user/register")
-    Result<JSONObject> register(UserDTO userDTO);
+    Result<JSONObject> register(@RequestBody UserDTO userDTO);
 
     @ApiOperation(value = "校验用户名或手机号唯一")
     @GetMapping(value = "user/check/{value}/{type}")

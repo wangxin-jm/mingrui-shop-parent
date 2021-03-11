@@ -6,9 +6,12 @@ import com.baidu.shop.base.Result;
 import com.baidu.shop.dto.UserDTO;
 import com.baidu.shop.entity.UserEntity;
 import com.baidu.shop.mapper.UserMapper;
+import com.baidu.shop.redis.repository.RedisRepository;
 import com.baidu.shop.service.UserService;
 import com.baidu.shop.utils.BCryptUtil;
 import com.baidu.shop.utils.BaiduBeanUtil;
+import com.baidu.shop.utils.RedisUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;
 import tk.mybatis.mapper.entity.Example;
 
@@ -25,15 +28,30 @@ import java.util.List;
  * 7
  **/
 @RestController
+@Slf4j
 public class UserServiceImpl extends BaseApiService implements UserService {
 
     @Resource
     private UserMapper userMapper;
 
+    @Resource
+    private RedisRepository redisRepository;
+
+
+    @Override
+    public Result<JSONObject> yanzhengma(String phone1, String code1) {
+        String s = redisRepository.get(RedisUtil.CODE_YANZHENGMA + phone1);
+        if(!code1.equals(s)){
+            return this.setResultError("验证码输入错误");
+        }
+
+
+        return this.setResultSuccess();
+    }
+
     @Override
     public Result<JSONObject> register(UserDTO userDTO) {
-        UserEntity userEntity = BaiduBeanUtil.beanUtil(userDTO,
-                UserEntity.class);
+        UserEntity userEntity = BaiduBeanUtil.beanUtil(userDTO,UserEntity.class);
         userEntity.setPassword(BCryptUtil.hashpw(userEntity.getPassword(),BCryptUtil.gensalt()));
         userEntity.setCreated(new Date());
         userMapper.insertSelective(userEntity);
@@ -67,7 +85,16 @@ public class UserServiceImpl extends BaseApiService implements UserService {
         //生成随机6位验证码
         String code = (int)((Math.random() * 9 + 1) * 100000) + "";
         //发送短信验证码
-        System.out.println(code);
+//        System.out.println(code);
+//        短信验证
+//        LuosimaoDuanxinUtil.SendCode(userDTO.getPhone(),code);
+//        语音验证
+//        LuosimaoDuanxinUtil.sendSpeak(userDTO.getPhone(),code);
+        log.debug("手机号是:{},验证码是:{}",userDTO.getPhone(),code);
+//
+        redisRepository.set(RedisUtil.CODE_YANZHENGMA + userDTO.getPhone(),code);
+//
+        redisRepository.expire(RedisUtil.CODE_YANZHENGMA + userDTO.getPhone(),60L);
 
         return this.setResultSuccess();
     }
